@@ -23,14 +23,16 @@ Read the reference files on demand:
 2. **Back up** the working tree (or make sure it is all committed/stashed by the user) so you can `diff` against the pre-agy state afterwards.
 3. **Prepare permissions** (`references/permissions.md`): add exact-match allow rules for every command the task needs; nothing else will run.
 4. **Write narrow task prompts** into files (never inline in the shell): a shared header (rules, allowed commands, scope) + one task block. 3–6 items per task, explicit file scope.
-5. **Launch** via the runner script, in the background, one job per disjoint file set. Prefer `--effort medium`/`low` for mechanical work and `--mode plan` first if scope is unclear.
-6. **Read the log, not the exit code.** A denied permission aborts the run but exits `0`.
-7. **Audit** (`references/audit-checklist.md`): full test suite yourself, type-check, diff against the backup, grep for fabricated data, review delicate files by hand.
-8. **Fix small things yourself.** Re-launching agy for a 3-line fix costs more than doing it.
-9. Do not let agy run any git write command. The human commits.
+5. **Launch** via the runner script, in the background, one job per disjoint file set. Prefer the `-low`/`-medium` model tiers for mechanical work and `--mode plan` first if scope is unclear. **Reuse sessions**: related tasks in the same area go through the same warm session (`AREA=<name>` in the runner → `--conversation`), sending only the task block.
+6. **Guard the session before every reuse**: context must be **< 80%** of the window and the session must **not be compacted** (context shrinking between runs = compaction). Otherwise start cold with the full header. Details and measurement: `references/cost-control.md`.
+7. **Read the log, not the exit code.** A denied permission aborts the run but exits `0`; the runner prints a `VERDICT:` line (denied actions, quota, failure, compaction) — read it.
+8. **Audit** (`references/audit-checklist.md`): full test suite yourself, type-check, diff against the backup, grep for fabricated data, review delicate files by hand.
+9. **Fix small things yourself.** Re-launching agy for a 3-line fix costs more than doing it.
+10. Do not let agy run any git write command. The human commits.
 
 ## Hard rules for the delegating Claude
 
 - Audit means audit: **do not widen scope** ("while I'm here I added…"). If the user asked to review, report; if they asked to fix item X, fix X. Features added "because the report suggested it" were the main source of user frustration.
 - Anything that changes visible UI copy/layout, public API contracts or product rules must be listed to the user explicitly, with before/after.
+- **Simplification / "remove over-engineering" lenses apply to logic and code, not to UI design.** Tell agents explicitly never to delete or shrink screens, flows or components; when a screen shows data the backend doesn't provide yet, render empty/"—", don't remove the screen. Screens the user has already tested are product decisions.
 - Never claim a thing was done unless you verified it (tests / grep / diff). Say what you did not verify.

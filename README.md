@@ -47,7 +47,7 @@ Then ask Claude Code something like *"use agy to adapt these tests, then audit"*
 1. In `-p` mode every un-approved tool call is **auto-denied and aborts the run — with exit code 0**. Pre-approve exact commands in agy's `permissions.allow` (`command(<exact string>)`, `mcp(server/tool)`), and read the log, not the exit code.
 2. Gemini Flash reaches for shell `grep`/`cat`/`Get-Content` and chains commands. Tell it, in the prompt, to use only its internal file tools and the listed commands, one at a time.
 3. Never pass big prompts inline in Git Bash. Write them to files and launch through a runner script in the background.
-4. Decide the design **before** delegating, keep tasks narrow with disjoint file scopes, and don't run many cold-start jobs at `--effort high`. Use `plan` mode, `--continue` and lower effort.
+4. Decide the design **before** delegating, keep tasks narrow with disjoint file scopes, and don't run many cold-start jobs at `--effort high`. Use `plan` mode, reuse sessions (`--conversation`) while their context stays under 80% and uncompacted, and lower model tiers.
 5. Treat agy's summary as a claim. Back up first, then run the tests yourself, diff against the backup, and grep for fabricated data.
 
 ## Notes
