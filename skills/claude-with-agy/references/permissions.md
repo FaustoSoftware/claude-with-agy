@@ -26,6 +26,7 @@ C:\Users\<you>\.gemini\antigravity-cli\settings.json
 ## Syntax learned the hard way
 
 - Shell commands: `command(<exact string>)`. **Exact match**: not a prefix, not a glob. Any extra argument, `cd x;` prefix, `&&`, `|`, `2>&1`, `Tee-Object`, redirect or env prefix makes it a *different* command → denied → run aborted.
+- URL access (browser MCP): `execute_url(<host>)`, e.g. `execute_url(localhost)` (any port). The denial message names the exact rule needed; stream-json also lists `denied_actions`.
 - MCP tools: `mcp(<server>/<tool>)`, one rule per tool. A tool you did not list (including write-capable ones like refactor/apply tools) aborts the run when the model happens to call it. Either list every read-only tool you want, or tell the agent in the prompt "use no MCP tools at all".
 - Built-in file tools (view/read file, grep/search tool, replace/write file, list dir) do not need rules in `accept-edits` mode.
 - Do not allow git write commands. Allow only read-only git (`git status`, `git status --short`, `git diff`, `git diff --stat`).

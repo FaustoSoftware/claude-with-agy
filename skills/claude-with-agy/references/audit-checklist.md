@@ -2,7 +2,7 @@
 
 Agy's final table is a claim, not evidence. After **every** run:
 
-1. **Log first**: grep for `auto-denied`, `no output produced`, `waiting for`, `SKIPPED`, `PARTIAL`. Exit code 0 means nothing.
+1. **Log first**: with `run_agy.sh` read the `VERDICT:` line; otherwise grep for `auto-denied`, `no output produced`, `denied_actions`, `RESOURCE_EXHAUSTED` (quota), `waiting for`, `SKIPPED`, `PARTIAL`. Exit code 0 means nothing.
 2. **Run the full test suite yourself**, alone (no other agent running). Compare with the count before.
 3. **Type-check / build** the frontend (`tsc --noEmit`, bundler build). A plain-JS store file is not type-checked: run a syntax check on it (`node --check` on a `.mjs` copy).
 4. **Diff against the backup** you took before launching (`diff -r`, ignoring CR/whitespace noise: `diff --strip-trailing-cr -w`). `git diff` alone hides what was already modified before the run.
@@ -11,6 +11,8 @@ Agy's final table is a claim, not evidence. After **every** run:
 7. **Read the delicate parts by hand**: auth/permissions, money math, state machines, migrations, concurrency, anything that decides who sees what.
 8. **Visible UI changes** (copy, labels, categories, layout, pagination behaviour) — list them with before/after for the user; they are product decisions.
 9. **Probe scripts** for the invariant that matters (e.g. tenant isolation): a 50-line script outside the repo that exercises the API and prints pass/fail is worth more than the agent's description.
+10. **UI changes: look at the screenshot yourself.** Ask agy for observations (colors, overlaps, truncation, console errors) via the browser MCP (`browser-and-screenshots.md`), but open the PNG yourself for any design decision; its "looks good" is not verification. Check that the dev server proxy has a live backend first (a body-less 500 on `/api/*` means the backend is down, not a UI bug).
+11. **Start-up checks against a COPY of the user's database, never the original.**
 
 ## Failure modes seen in practice
 

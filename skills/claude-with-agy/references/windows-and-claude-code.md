@@ -13,6 +13,7 @@ Pattern that works:
 1. Write the header and each task to **files** with the Write tool (`header.md`, `taskA.txt`).
 2. Launch through a small runner script that reads them: see `scripts/run_agy.sh`.
 3. Start the runner with the Bash tool's `run_in_background: true`; you get a notification when it ends.
+   Set `AREA=<name>` to reuse a warm session across related tasks and read the `VERDICT:` line at the end of the log (see `cost-control.md`).
 
 ## Do not poll with sleep
 

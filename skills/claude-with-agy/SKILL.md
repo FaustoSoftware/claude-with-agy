@@ -1,6 +1,6 @@
 ---
 name: claude-with-agy
-description: Delegate mechanical or bulk coding work from Claude Code to the Antigravity CLI (`agy`, Gemini models) in headless mode on Windows, then audit the result. Use when the user wants to save Claude tokens by having agy do edits (refactors, test adaptation, docs, mechanical migrations), asks to "use agy", "use Gemini", or needs to run several agy jobs and verify them. Covers invocation flags, the permissions allow-list that headless mode requires, Windows/Git Bash quoting traps, prompt patterns that keep Gemini Flash on task, parallelism rules, cost control, and the audit checklist.
+description: Delegate mechanical or bulk coding work from Claude Code to the Antigravity CLI (`agy`, Gemini models) in headless mode on Windows, then audit the result. Use when the user wants to save Claude tokens by having agy do edits (refactors, test adaptation, docs, mechanical migrations), asks to "use agy", "use Gemini", or needs to run several agy jobs and verify them. Also covers UI checks: agy can open its own Chrome (chrome-devtools MCP), navigate, click, take screenshots and describe them with Gemini Flash vision, so Claude spends fewer tokens on frontend review. Covers invocation flags, the permissions allow-list that headless mode requires, Windows/Git Bash quoting traps, prompt patterns that keep Gemini Flash on task, parallelism rules, cost control, and the audit checklist.
 ---
 
 # Claude Code + agy (Antigravity CLI) on Windows
@@ -14,8 +14,23 @@ Read the reference files on demand:
 - `references/windows-and-claude-code.md` — Git Bash / PowerShell quoting, runner script, background jobs, process hygiene.
 - `references/prompt-patterns.md` — how to write tasks Gemini Flash actually finishes.
 - `references/audit-checklist.md` — what to verify after every run and the failure modes seen in practice.
+- `references/browser-and-screenshots.md` — screenshots / UI checks: why built-in browser tools fail in `-p`, the own-Chrome MCP setup and its allow-rules. `scripts/setup_agy_browser.sh` does the one-time registration.
 - `references/cost-control.md` — effort, parallelism, session reuse, when NOT to use agy.
 - `scripts/run_agy.sh` — runner template (prompt from files, log, exit marker).
+
+## Where agy keeps its config (Windows)
+
+Everything lives under `C:\Users\<you>\.gemini\antigravity-cli\` (confirm with `Test-Path`; tell the user this path whenever you ask them to edit something there):
+
+| What | Where |
+|---|---|
+| Permissions allow-list (`permissions.allow`) and trusted workspaces | `settings.json` |
+| MCP servers | managed with `agy mcp list / add / remove` (no need to edit files) |
+| Conversations (for `--conversation <id>`) | `conversations\<id>.db` |
+| Diagnostic log | `cli.log` |
+| Sign-in credentials | `antigravity-oauth-token` — **never read, print or commit it** |
+
+Do not confuse it with `C:\Users\<you>\.gemini\settings.json`, which belongs to the separate Gemini CLI, nor with the IDE's folders (`antigravity`, `antigravity-ide`). The browser profile used by the own-Chrome setup is `.gemini\antigravity-browser-profile`, and screenshots go wherever the task says (e.g. `.gemini\antigravity-shots`).
 
 ## Workflow
 

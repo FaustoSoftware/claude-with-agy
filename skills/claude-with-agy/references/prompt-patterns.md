@@ -37,3 +37,31 @@ Large prompts make Flash drift. Keep a task to ~3–6 items and a handful of fil
 - Letting the prompt say "fix/improve" without a boundary — agents add features.
 - Telling an agent to run the suite while others are mid-edit and then trusting its green/red.
 - Re-launching the same job with a longer prompt after a permission abort instead of fixing the allow-list.
+
+## Examples (anonymous)
+
+**Short header + one bounded task** (`header.md` is sent only on a cold start; later tasks in a reused session send just the task block):
+
+```text
+# header.md
+Rules: edit only the files listed in SCOPE. Use only your internal file tools to read/search.
+The only shell command allowed is: npx tsc --noEmit  (run it alone, in the foreground).
+No MCP tools, no background tasks, no git write commands. Do not change UI copy or layout.
+If something is unclear, stop and say so; do not decide it yourself.
+
+# task.txt
+SCOPE: src/components/InvoiceTable.tsx, src/components/InvoiceTable.test.tsx
+1. Rename prop `rowData` to `rows` in the component and every use inside SCOPE.
+2. Update the test to the new prop name; do not change assertions.
+3. Run `npx tsc --noEmit` and report its last line verbatim.
+End with a table: file / change / anything doubtful.
+```
+
+**UI observation task** (browser MCP; observations, not opinions):
+
+```text
+Use only the chrome-devtools MCP server; read-only: do not press buttons that create, edit, vote, submit or delete.
+1. navigate_page to http://localhost:5173/<route>, take_snapshot, take_screenshot, list_console_messages.
+2. Report: main title, colors of the primary button and the status cards, anything overlapping or truncated, console errors, and the path where the screenshot was saved.
+Answer only with what you see; do not guess.
+```
