@@ -31,21 +31,63 @@ Headless mode auto-denies MCP tools that are not allow-listed. Add to `permissio
 ```json
 "mcp(chrome-devtools/list_pages)",
 "mcp(chrome-devtools/new_page)",
+"mcp(chrome-devtools/select_page)",
+"mcp(chrome-devtools/close_page)",
 "mcp(chrome-devtools/navigate_page)",
+"mcp(chrome-devtools/wait_for)",
 "mcp(chrome-devtools/take_screenshot)",
 "mcp(chrome-devtools/take_snapshot)",
 "mcp(chrome-devtools/list_console_messages)",
-"execute_url(localhost)",
+"mcp(chrome-devtools/get_console_message)",
+"mcp(chrome-devtools/list_network_requests)",
+"mcp(chrome-devtools/get_network_request)",
+"mcp(chrome-devtools/get_css_styles)",
 "mcp(chrome-devtools/click)",
+"mcp(chrome-devtools/hover)",
+"mcp(chrome-devtools/press_key)",
+"mcp(chrome-devtools/type_text)",
 "mcp(chrome-devtools/fill)",
-"mcp(chrome-devtools/wait_for)"
+"mcp(chrome-devtools/fill_form)",
+"mcp(chrome-devtools/handle_dialog)",
+"mcp(chrome-devtools/drag)",
+"mcp(chrome-devtools/resize_page)",
+"mcp(chrome-devtools/emulate)",
+"mcp(chrome-devtools/performance_start_trace)",
+"mcp(chrome-devtools/performance_stop_trace)",
+"mcp(chrome-devtools/performance_analyze_insight)",
+"mcp(chrome-devtools/lighthouse_audit)",
+"mcp(chrome-devtools/screencast_start)",
+"mcp(chrome-devtools/screencast_stop)",
+"execute_url(localhost)",
+"execute_url(127.0.0.1)"
 ```
 
 `execute_url(localhost)` is a separate permission: `navigate_page` is denied without it (found by testing; the denial message names it). It is per host, so it covers any port on localhost; add one per other host you need.
 
-**`click`, `fill` and `wait_for` are required in practice** to navigate a real app (menus, tabs, forms). They let agy **change data in the app under test** (vote, submit, delete): use test data only, and say in the prompt which buttons it may press and which not. Verified once: a read-only flow (home → click "Tablero" → `wait_for` → click first card → snapshot/screenshot, 2 clicks, 2 `wait_for`, exit 0) worked with `gemini-3.8-flash-medium` in ~2-3 min. It clicked the first card, not the "Ver caso" link it was told to use: prompts for flows need explicit targets.
+**`click`, `fill`, `press_key` and `wait_for` are required in practice** to navigate a real app (menus, tabs, forms, keyboard). They let agy **change data in the app under test** (vote, submit, delete): use test data only, and say in the prompt which buttons it may press and which not. Verified once: a read-only flow (home → click "Tablero" → `wait_for` → click first card → snapshot/screenshot, 2 clicks, 2 `wait_for`, exit 0) worked with `gemini-3.8-flash-medium` in ~2-3 min. It clicked the first card, not the "Ver caso" link it was told to use: prompts for flows need explicit targets.
 
-Deliberately **not** included: `evaluate_script` (arbitrary JavaScript in the page; clicks do not need it) and file upload.
+### Tools covered, and the two that are kept out
+
+The list above covers every `chrome-devtools` tool in its [tool reference](https://github.com/ChromeDevTools/chrome-devtools-mcp/blob/main/docs/tool-reference.md) except two. An agent that reaches for a tool that is not allow-listed gets it auto-denied and the whole run aborts (this happened with `press_key` before it was listed).
+
+| Group | Tools | Risk |
+|---|---|---|
+| Pages | `list_pages`, `new_page`, `select_page`, `close_page`, `navigate_page`, `wait_for` | low |
+| Observe | `take_screenshot`, `take_snapshot`, `list_console_messages`, `get_console_message`, `list_network_requests`, `get_network_request`, `get_css_styles` | low (network/console may show tokens or data of the app under test) |
+| Act | `click`, `hover`, `press_key`, `type_text`, `fill`, `fill_form`, `handle_dialog`, `drag` | **can change data** in the app under test: test data only |
+| Viewport | `resize_page`, `emulate` | low |
+| Heavy | `performance_*`, `lighthouse_audit`, `screencast_*` | costly in tokens/time: ask for them explicitly |
+
+**High risk, not in the main list** — add only for a task that truly needs them:
+
+```json
+"mcp(chrome-devtools/evaluate_script)",
+"mcp(chrome-devtools/upload_file)"
+```
+
+`evaluate_script` runs arbitrary JavaScript inside the page (can read storage, cookies of that profile, call internal APIs); `upload_file` sends local files to the page. Clicks and typing do not need either.
+
+A new host needs its own `execute_url(<host>)`. If a tool you did not expect is denied, the output names the exact rule (e.g. `mcp(chrome-devtools/press_key)`); add it only if you agree.
 
 **Installing the skill does not add these.** `npx skills add` only copies skill files; it never edits agy's settings or MCP config. The user runs the registration and adds the rules once (`scripts/setup_agy_browser.sh` prints both). Claude Code may also be blocked by its own auto-mode guard from editing agy's `settings.json` — then hand the user the lines; do not work around the guard.
 

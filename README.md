@@ -84,17 +84,38 @@ Then paste the printed rules into `permissions.allow`:
 ```json
 "mcp(chrome-devtools/list_pages)",
 "mcp(chrome-devtools/new_page)",
+"mcp(chrome-devtools/select_page)",
+"mcp(chrome-devtools/close_page)",
 "mcp(chrome-devtools/navigate_page)",
+"mcp(chrome-devtools/wait_for)",
 "mcp(chrome-devtools/take_screenshot)",
 "mcp(chrome-devtools/take_snapshot)",
 "mcp(chrome-devtools/list_console_messages)",
-"execute_url(localhost)",
+"mcp(chrome-devtools/get_console_message)",
+"mcp(chrome-devtools/list_network_requests)",
+"mcp(chrome-devtools/get_network_request)",
+"mcp(chrome-devtools/get_css_styles)",
 "mcp(chrome-devtools/click)",
+"mcp(chrome-devtools/hover)",
+"mcp(chrome-devtools/press_key)",
+"mcp(chrome-devtools/type_text)",
 "mcp(chrome-devtools/fill)",
-"mcp(chrome-devtools/wait_for)"
+"mcp(chrome-devtools/fill_form)",
+"mcp(chrome-devtools/handle_dialog)",
+"mcp(chrome-devtools/drag)",
+"mcp(chrome-devtools/resize_page)",
+"mcp(chrome-devtools/emulate)",
+"mcp(chrome-devtools/performance_start_trace)",
+"mcp(chrome-devtools/performance_stop_trace)",
+"mcp(chrome-devtools/performance_analyze_insight)",
+"mcp(chrome-devtools/lighthouse_audit)",
+"mcp(chrome-devtools/screencast_start)",
+"mcp(chrome-devtools/screencast_stop)",
+"execute_url(localhost)",
+"execute_url(127.0.0.1)"
 ```
 
-Clicks, `fill` and `wait_for` are part of the main list because navigating a real app needs them. They let agy **change data in the app under test** (vote, submit, delete): use test data and say in the prompt which buttons are off limits. `evaluate_script` (arbitrary JavaScript in the page) is left out on purpose and is not needed for clicks. The browser uses `~.geminintigravity-browser-profile`, not your everyday Chrome profile, so it has none of your logins. Do **not** enable `chrome://inspect/#remote-debugging` on your daily Chrome for this. Details and what was tested: `skills/claude-with-agy/references/browser-and-screenshots.md`. Undo with `agy mcp remove chrome-devtools`.
+This is every `chrome-devtools` tool except `evaluate_script` and `upload_file`, so agy should not hit another permission abort. The action tools (`click`, `press_key`, `type_text`, `fill`, ...) let agy **change data in the app under test** (vote, submit, delete): use test data and say in the prompt which buttons are off limits. Add `mcp(chrome-devtools/evaluate_script)` (arbitrary JavaScript in the page) and `mcp(chrome-devtools/upload_file)` only for a task that really needs them. The browser uses `~.geminintigravity-browser-profile`, not your everyday Chrome profile, so it has none of your logins. Do **not** enable `chrome://inspect/#remote-debugging` on your daily Chrome for this. Details: `skills/claude-with-agy/references/browser-and-screenshots.md`. Undo with `agy mcp remove chrome-devtools`.
 
 **4. Check it works**
 
